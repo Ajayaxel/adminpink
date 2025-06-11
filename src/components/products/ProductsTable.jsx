@@ -149,7 +149,7 @@ const ProductsTable = () => {
                   {product.images?.[0] ? (
                     <div className="relative">
                       <img
-                        src={`http://localhost:7000${product.images[0].replace('/src', '')}`}
+                        src={`https://backend.pinkstories.ae${product.images[0].replace('/src', '')}`}
                         alt={product.productName}
                         className="w-12 h-12 object-cover rounded-lg cursor-pointer"
                         onClick={() => handleImageClick(product.images)}
@@ -216,11 +216,11 @@ const ProductsTable = () => {
             <div className="grid grid-cols-3 gap-4">
               {selectedImages.map((img, index) => (
                 <img
-                  key={index}
-                  src={`http://localhost:7000${img.replace('/src', '')}`}
-                  alt={`Product Image ${index + 1}`}
-                  className="w-full h-full object-cover rounded-lg"
-                />
+                key={index}
+                src={`https://backend.pinkstories.ae${img.replace('/src', '')}`}
+                alt={`Product Image ${index + 1}`}
+                className="w-full h-full object-cover rounded-lg"
+              />
               ))}
             </div>
             <button
