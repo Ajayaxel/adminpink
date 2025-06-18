@@ -1,10 +1,9 @@
 import { motion } from "framer-motion";
-import { Edit, Trash2, Plus, Search } from "lucide-react";
+import { Edit, Trash2, Plus, Search, Eye, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../utils/api"; // ✅ Axios instance
+import api from "../../utils/api";
 import { BASE_URL } from "../../utils/api";
-
 
 const ProductsTable = () => {
   const navigate = useNavigate();
@@ -13,8 +12,8 @@ const ProductsTable = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
-    const [message, setMessage] = useState("");
-  
+  const [message, setMessage] = useState("");
+  const [viewMode, setViewMode] = useState("table"); // 'table' or 'cards'
 
   useEffect(() => {
     fetchProducts();
@@ -25,8 +24,6 @@ const ProductsTable = () => {
       const res = await api.get("products");
       setProducts(res.data.data);
       setFilteredProducts(res.data.data);
-      // console.log(res.data);
-      
     } catch (error) {
       console.error("Error fetching products:", error);
     }
@@ -53,16 +50,17 @@ const ProductsTable = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
+
   const handleDeleteProduct = async (id) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
-  
+
     const token = localStorage.getItem("token");
-  
+
     if (!token) {
       setMessage("❌ No token found. Please log in.");
       return;
     }
-  
+
     try {
       const response = await fetch(`${BASE_URL}products/delete/${id}`, {
         method: "DELETE",
@@ -70,9 +68,9 @@ const ProductsTable = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       const result = await response.json();
-  
+
       if (response.ok && result.success) {
         setMessage("✅ Product deleted successfully!");
         setProducts((prev) => prev.filter((p) => p._id !== id));
@@ -84,156 +82,477 @@ const ProductsTable = () => {
       setMessage("❌ Error: " + error.message);
     }
   };
-  
-  
+
+  // Card component for mobile view
+  const ProductCard = ({ product }) => (
+    <motion.div
+      className="bg-white dark:bg-gray-800 mb-6 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center space-x-3">
+          {product.images?.[0] ? (
+            <div className="relative">
+              <img
+                src={`https://backend.pinkstories.ae${product.images[0].replace('/src', '')}`}
+                alt={product.productName}
+                className="w-16 h-16 object-cover rounded-lg cursor-pointer border-2 border-gray-200 dark:border-gray-600"
+                onClick={() => handleImageClick(product.images)}
+              />
+              <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full px-2 py-1 font-semibold">
+                {product.images.length}
+              </span>
+            </div>
+          ) : (
+            <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <span className="text-gray-400 text-xs">No image</span>
+            </div>
+          )}
+          <div>
+            <h3 className="font-semibold text-gray-900 dark:text-white text-lg">
+              {product.productName}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">SKU: {product.sku}</p>
+          </div>
+        </div>
+        <div className="flex space-x-2">
+          <button
+            title="Edit"
+            className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+            onClick={() => navigate(`/products/${product._id}`)}
+          >
+            <Edit size={18} />
+          </button>
+          <button
+            title="Delete"
+            className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+            onClick={() => handleDeleteProduct(product._id)}
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="space-y-2">
+          <div>
+            <span className="font-medium text-gray-700 dark:text-gray-300">Category:</span>
+            <p className="text-gray-900 dark:text-white">{product.category}</p>
+          </div>
+          <div>
+            <span className="font-medium text-gray-700 dark:text-gray-300">Brand:</span>
+            <p className="text-gray-900 dark:text-white">{product.brand}</p>
+          </div>
+          <div>
+            <span className="font-medium text-gray-700 dark:text-gray-300">Price:</span>
+            <p className="text-lg font-bold text-green-600 dark:text-green-400">${product.price}</p>
+          </div>
+          <div>
+            <span className="font-medium text-gray-700 dark:text-gray-300">Stock:</span>
+            <p className={`font-semibold ${product.stockQuantity > 10 ? 'text-green-600' : 'text-red-600'}`}>
+              {product.stockQuantity}
+            </p>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <div>
+            <span className="font-medium text-gray-700 dark:text-gray-300">Weight:</span>
+            <p className="text-gray-900 dark:text-white">{product.weight}</p>
+          </div>
+          <div>
+            <span className="font-medium text-gray-700 dark:text-gray-300">Discount:</span>
+            <p className="text-gray-900 dark:text-white">{product.discount || "-"}</p>
+          </div>
+          <div>
+            <span className="font-medium text-gray-700 dark:text-gray-300">Delivery:</span>
+            <p className="text-gray-900 dark:text-white">{product.deliveryTime}</p>
+          </div>
+          <div>
+            <span className="font-medium text-gray-700 dark:text-gray-300">Date Added:</span>
+            <p className="text-gray-900 dark:text-white">{product.dateAdded?.slice(0, 10)}</p>
+          </div>
+        </div>
+      </div>
+
+      {product.sizeVariants && product.sizeVariants.length > 0 && (
+        <div className="mt-3">
+          <span className="font-medium text-gray-700 dark:text-gray-300">Sizes:</span>
+          <div className="flex flex-wrap gap-1 mt-1">
+            {product.sizeVariants.map((size, index) => (
+              <span key={index} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded-full">
+                {size}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {product.colorVariants && product.colorVariants.length > 0 && (
+        <div className="mt-3">
+          <span className="font-medium text-gray-700 dark:text-gray-300">Colors:</span>
+          <div className="flex flex-wrap gap-1 mt-1">
+            {product.colorVariants.map((color, index) => (
+              <span key={index} className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 text-xs rounded-full">
+                {color}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {product.material && product.material.length > 0 && (
+        <div className="mt-3">
+          <span className="font-medium text-gray-700 dark:text-gray-300">Material:</span>
+          <p className="text-gray-900 dark:text-white text-sm">{product.material.join(", ")}</p>
+        </div>
+      )}
+
+      {product.shortDescription && (
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <span className="font-medium text-gray-700 dark:text-gray-300">Description:</span>
+          <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">{product.shortDescription}</p>
+        </div>
+      )}
+    </motion.div>
+  );
 
   return (
-    
     <motion.div
-      className="bg-gray-800 dark:bg-gray-900 rounded-2xl shadow-xl p-6 "
+      className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Header + Search */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-          Product List
-        </h2>
-        <div className="relative w-full sm:w-1/3">
-          <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
-          <input
-            type="text"
-            placeholder="Search products..."
-            className="w-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none"
-            onChange={handleSearch}
-            value={searchTerm}
-          />
-        </div>
-      </div>
-
-      {/* Add Product Button */}
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={handleAddProduct}
-          className="flex items-center bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg shadow transition-all"
-        >
-          <Plus size={18} className="mr-2" />
-          Add Product
-        </button>
-      </div>
-
-      {/* Table Wrapper */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-          <thead className="bg-gray-100 dark:bg-gray-800">
-            <tr>
-              {[
-                "Image", "Name", "SKU", "Category", "Brand", "Price", "Discount", "Stock",
-                "Weight", "Size Variants", "Color Variants", "Material",
-                "Delivery Time", "Product Description", "Date Added", "Short Desc", "Care Instructions", "Actions"
-              ].map((title) => (
-                <th
-                  key={title}
-                  className="px-4 py-3 text-left text-gray-600 dark:text-gray-300 font-semibold whitespace-nowrap"
-                >
-                  {title}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-            {filteredProducts.map((product) => (
-              <tr key={product._id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                <td className="px-4 py-3">
-                  {product.images?.[0] ? (
-                    <div className="relative">
-                      <img
-                        src={`https://backend.pinkstories.ae${product.images[0].replace('/src', '')}`}
-                        alt={product.productName}
-                        className="w-12 h-12 object-cover rounded-lg cursor-pointer"
-                        onClick={() => handleImageClick(product.images)}
-                      />
-                      <span className="absolute -top-2 -right-2 bg-gray-800 text-white text-xs rounded-full px-2 py-1">
-                        {product.images.length}
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="text-gray-400 italic">No image</span>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-gray-800 dark:text-gray-200">{product.productName}</td>
-                <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{product.sku}</td>
-                <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{product.category}</td>
-                <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{product.brand}</td>
-                <td className="px-4 py-3 text-gray-800 dark:text-gray-200">${product.price}</td>
-                <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{product.discount || "-"}</td>
-                <td className="px-4 py-3 text-gray-800 dark:text-gray-200">{product.stockQuantity}</td>
-                <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{product.weight}</td>
-                <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{Array.isArray(product.sizeVariants) && product.sizeVariants.length > 0 ? product.sizeVariants.join(", ") : ""}
-                </td>
-                <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{Array.isArray(product.colorVariants) && product.colorVariants.length > 0 ? product.colorVariants.join(", "): ""}
-                </td>
-                <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{Array.isArray(product.material) && product.material.length > 0 ? product.material.join(", ") : ""}
-                </td>
-                <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{product.deliveryTime}</td>
-                <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{product.productDescription}</td>
-                <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{product.dateAdded?.slice(0, 10)}</td>
-                <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{product.shortDescription}</td>
-                <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{product.careInstructions}</td>
-                <td className="px-4 py-3">
-                  <div className="flex space-x-3">
-                  <button
-                    title="Edit"
-                    className="text-blue-500 hover:text-blue-400"
-                    onClick={() => navigate(`/products/${product._id}`)}
-                  >
-                    <Edit size={18} />
-                  </button>
-                  <button
-                    title="Delete"
-                    className="text-red-500 hover:text-red-400"
-                    onClick={() => handleDeleteProduct(product._id)}
-
-                    
-                  >
-                    <Trash2 size={18} />
-                  </button>
-
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Image Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
-          <div className="bg-gray-900 border border-gray-400 p-6 rounded-lg max-w-lg w-full">
-            <h3 className="text-xl font-semibold mb-4 text-white">Product Images</h3>
-            <div className="grid grid-cols-3 gap-4">
-              {selectedImages.map((img, index) => (
-                <img
-                key={index}
-                src={`https://backend.pinkstories.ae${img.replace('/src', '')}`}
-                alt={`Product Image ${index + 1}`}
-                className="w-full h-full object-cover rounded-lg"
+      {/* Header */}
+      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Product Management
+          </h2>
+          
+          {/* Search and View Toggle */}
+          <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+            <div className="relative flex-1 lg:w-80">
+              <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder="Search products by name..."
+                className="w-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 rounded-xl pl-11 pr-4 py-3 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                onChange={handleSearch}
+                value={searchTerm}
               />
-              ))}
             </div>
-            <button
-              onClick={handleCloseModal}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
-            >
-              Close
-            </button>
+            
+            {/* View Mode Toggle for smaller screens */}
+            <div className="flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1 lg:hidden">
+              <button
+                onClick={() => setViewMode("cards")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  viewMode === "cards"
+                    ? "bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm"
+                    : "text-gray-600 dark:text-gray-400"
+                }`}
+              >
+                Cards
+              </button>
+              <button
+                onClick={() => setViewMode("table")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  viewMode === "table"
+                    ? "bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm"
+                    : "text-gray-600 dark:text-gray-400"
+                }`}
+              >
+                Table
+              </button>
+            </div>
           </div>
+        </div>
+
+        {/* Add Product Button and Stats */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-6">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            Showing {filteredProducts.length} of {products.length} products
+          </div>
+          <button
+            onClick={handleAddProduct}
+            className="flex items-center bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+          >
+            <Plus size={20} className="mr-2" />
+            Add New Product
+          </button>
+        </div>
+
+        {/* Message Display */}
+        {message && (
+          <div className="mt-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+            <p className="text-blue-800 dark:text-blue-300">{message}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Content Area */}
+      <div className="p-6">
+        {/* Mobile/Tablet Card View */}
+        <div className={`${viewMode === "table" ? "lg:hidden" : ""} ${viewMode === "cards" ? "block" : "hidden lg:hidden"}`}>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredProducts.map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </div>
+        </div>
+
+        {/* Desktop Table View */}
+        <div className={`${viewMode === "cards" ? "hidden" : "hidden lg:block"} overflow-x-auto`}>
+          <table className="min-w-full">
+            <thead>
+              <tr className="border-b border-gray-200 dark:border-gray-700">
+                {[
+                  "Product", "Details", "Pricing", "Inventory", "Variants", 
+                  "Specifications", "Descriptions", "Actions"
+                ].map((title) => (
+                  <th
+                    key={title}
+                    className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider"
+                  >
+                    {title}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              {filteredProducts.map((product) => (
+                <tr key={product._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                  {/* Product Info */}
+                  <td className="px-6 py-4">
+                    <div className="flex items-center space-x-4">
+                      {product.images?.[0] ? (
+                        <div className="relative">
+                          <img
+                            src={`https://backend.pinkstories.ae${product.images[0].replace('/src', '')}`}
+                            alt={product.productName}
+                            className="w-16 h-16 object-cover rounded-xl cursor-pointer border border-gray-200 dark:border-gray-600"
+                            onClick={() => handleImageClick(product.images)}
+                          />
+                          <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full px-2 py-1 font-semibold">
+                            {product.images.length}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-xl flex items-center justify-center">
+                          <span className="text-gray-400 text-xs">No image</span>
+                        </div>
+                      )}
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">
+                          {product.productName}
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">SKU: {product.sku}</p>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* Details */}
+                  <td className="px-6 py-4">
+                    <div className="space-y-1">
+                      <p className="text-sm"><span className="font-medium">Category:</span> {product.category}</p>
+                      <p className="text-sm"><span className="font-medium">Brand:</span> {product.brand}</p>
+                      <p className="text-sm"><span className="font-medium">Added:</span> {product.dateAdded?.slice(0, 10)}</p>
+                    </div>
+                  </td>
+
+                  {/* Pricing */}
+                  <td className="px-6 py-4">
+                    <div className="space-y-1">
+                      <p className="text-lg font-bold text-green-600 dark:text-green-400">${product.price}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Discount: {product.discount || "-"}
+                      </p>
+                    </div>
+                  </td>
+
+                  {/* Inventory */}
+                  <td className="px-6 py-4">
+                    <div className="space-y-1">
+                      <p className={`font-semibold ${product.stockQuantity > 10 ? 'text-green-600' : 'text-red-600'}`}>
+                        Stock: {product.stockQuantity}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Weight: {product.weight}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Delivery: {product.deliveryTime}</p>
+                    </div>
+                  </td>
+
+                  {/* Variants */}
+                  <td className="px-6 py-4">
+                    <div className="space-y-2">
+                      {product.sizeVariants && product.sizeVariants.length > 0 && (
+                        <div>
+                          <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Sizes:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {product.sizeVariants.slice(0, 3).map((size, index) => (
+                              <span key={index} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded">
+                                {size}
+                              </span>
+                            ))}
+                            {product.sizeVariants.length > 3 && (
+                              <span className="text-xs text-gray-500">+{product.sizeVariants.length - 3}</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      {product.colorVariants && product.colorVariants.length > 0 && (
+                        <div>
+                          <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Colors:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {product.colorVariants.slice(0, 3).map((color, index) => (
+                              <span key={index} className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 text-xs rounded">
+                                {color}
+                              </span>
+                            ))}
+                            {product.colorVariants.length > 3 && (
+                              <span className="text-xs text-gray-500">+{product.colorVariants.length - 3}</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Specifications */}
+                  <td className="px-6 py-4">
+                    <div className="space-y-1">
+                      {product.material && product.material.length > 0 && (
+                        <div>
+                          <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Material:</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {product.material.slice(0, 2).join(", ")}
+                            {product.material.length > 2 && "..."}
+                          </p>
+                        </div>
+                      )}
+                      {product.careInstructions && (
+                        <div>
+                          <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Care:</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-xs">
+                            {product.careInstructions}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Descriptions */}
+                  <td className="px-6 py-4">
+                    <div className="space-y-1">
+                      {product.productDescription && (
+                        <div>
+                          <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Description:</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-xs">
+                            {product.productDescription}
+                          </p>
+                        </div>
+                      )}
+                      {product.shortDescription && (
+                        <div>
+                          <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Short Desc:</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-xs">
+                            {product.shortDescription}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Actions */}
+                  <td className="px-6 py-4">
+                    <div className="flex space-x-3">
+                      <button
+                        title="Edit Product"
+                        className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                        onClick={() => navigate(`/products/${product._id}`)}
+                      >
+                        <Edit size={18} />
+                      </button>
+                      <button
+                        title="Delete Product"
+                        className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        onClick={() => handleDeleteProduct(product._id)}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Empty State */}
+        {filteredProducts.length === 0 && (
+          <div className="text-center py-12">
+            <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+              <Search className="w-12 h-12 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              No products found
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              {searchTerm ? `No products match "${searchTerm}"` : "No products available"}
+            </p>
+            {!searchTerm && (
+              <button
+                onClick={handleAddProduct}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition-colors"
+              >
+                Add Your First Product
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Enhanced Image Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-75 z-50 p-4">
+          <motion.div
+            className="bg-white dark:bg-gray-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">
+                Product Images ({selectedImages.length})
+              </h3>
+              <button
+                onClick={handleCloseModal}
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-100px)]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {selectedImages.map((img, index) => (
+                  <motion.img
+                    key={index}
+                    src={`https://backend.pinkstories.ae${img.replace('/src', '')}`}
+                    alt={`Product Image ${index + 1}`}
+                    className="w-full h-64 object-cover rounded-xl border border-gray-200 dark:border-gray-700 cursor-zoom-in"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: index * 0.1 }}
+                  />
+                ))}
+              </div>
+            </div>
+          </motion.div>
         </div>
       )}
     </motion.div>
-  
   );
 };
 

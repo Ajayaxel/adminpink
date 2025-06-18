@@ -5,6 +5,17 @@ import api from "../../utils/api"; // ✅ Axios instance
 
 const EditProductForm = () => {
       const { id } = useParams(); // get product ID from URL
+        // Category options
+  const categories = [
+    { value: "", label: "Select Category" },
+    { value: "party wears", label: "PARTY WEARS" },
+    { value: "semi party wear", label: "SEMI-PARTY WEARS" },
+    { value: "co-ord sets", label: "CO-ORD SETS" },
+    { value: "indo-western outfits", label: "INDO-WESTERN OUTFITS" },
+    { value: "kurta", label: "KURTA" },
+    { value: "saree", label: "SAREE" },
+   
+  ];
       
   const [formData, setFormData] = useState({
     sku: "",
@@ -271,15 +282,37 @@ const EditProductForm = () => {
                       <span>{label}</span>
                       {(name === "productName" || name === "price") && <span className="text-red-400">*</span>}
                     </label>
-                    <input
-                      type={type}
-                      name={name}
-                      value={formData[name]}
-                      onChange={handleChange}
-                      className="w-full bg-white/5 backdrop-blur-sm border border-white/10 text-white placeholder-gray-400 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
-                      placeholder={`Enter ${label.toLowerCase()}`}
-                      required={name === "productName" || name === "price"}
-                    />
+                    
+                    {/* Special handling for category field */}
+                    {name === "category" ? (
+                      <select
+                        name={name}
+                        value={formData[name]}
+                        onChange={handleChange}
+                        className="w-full bg-white/5 backdrop-blur-sm border border-white/10 text-white placeholder-gray-400 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 group-hover:bg-white/10 appearance-none cursor-pointer"
+                        required
+                      >
+                        {categories.map((category) => (
+                          <option 
+                            key={category.value} 
+                            value={category.value}
+                            className="bg-gray-800 text-white"
+                          >
+                            {category.label}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type={type}
+                        name={name}
+                        value={formData[name]}
+                        onChange={handleChange}
+                        className="w-full bg-white/5 backdrop-blur-sm border border-white/10 text-white placeholder-gray-400 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
+                        placeholder={`Enter ${label.toLowerCase()}`}
+                        required={name === "productName" || name === "price"}
+                      />
+                    )}
                   </div>
                 ))}
               </div>
@@ -505,18 +538,18 @@ const EditProductForm = () => {
                     <span>Image Preview</span>
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    {previewImages.map((src, index) => (
-                      <div key={index} className="group relative">
-                        <img
-                          src={src}
-                          alt={`preview-${index}`}
-                          className="w-full h-32 object-cover rounded-xl border border-white/20 group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl flex items-center justify-center">
-                          <span className="text-white text-sm font-medium">Image {index + 1}</span>
+                  {previewImages.map((src, index) => (
+                        <div key={index} className="group relative">
+                          <img
+                            src={`https://backend.pinkstories.ae${src.replace('/src', '')}`}
+                            alt={`preview-${index}`}
+                            className="w-full h-32 object-cover rounded-xl border border-white/20 group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl flex items-center justify-center">
+                            <span className="text-white text-sm font-medium">Image {index + 1}</span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 </div>
               )}
