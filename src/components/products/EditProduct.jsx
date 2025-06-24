@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BASE_URL } from "../../utils/api";
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import api from "../../utils/api"; // ✅ Axios instance
 
 const EditProductForm = () => {
@@ -32,10 +32,8 @@ const EditProductForm = () => {
     discount: 0,
     colorVariants: [""],
     material: [""],
-    sizeVariants: {
-      indian: [],
-      pakistan: [],
-    },
+    sizeVariantIndia: [], // Changed from nested to separate array
+    sizeVariantPakistan: [], // Changed from nested to separate array
     images: [],
     // Fashion-specific fields
     neck: "",
@@ -50,6 +48,8 @@ const EditProductForm = () => {
 
   const [previewImages, setPreviewImages] = useState([]);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+
  
   //fetch data of product
 
@@ -77,10 +77,13 @@ const EditProductForm = () => {
           discount: product.discount || 0,
           colorVariants: Array.isArray(product.colorVariants) ? product.colorVariants : [""],
           material: Array.isArray(product.material) ? product.material : [""],
-          sizeVariants: {
-            indian: Array.isArray(product.sizeVariants?.indian) ? product.sizeVariants.indian : [],
-            pakistan: Array.isArray(product.sizeVariants?.pakistan) ? product.sizeVariants.pakistan : [],
-          },
+          // Handle both old nested format and new separate arrays
+          sizeVariantIndia: product.sizeVariantIndia 
+            ? (Array.isArray(product.sizeVariantIndia) ? product.sizeVariantIndia : [])
+            : (Array.isArray(product.sizeVariants?.indian) ? product.sizeVariants.indian : []),
+          sizeVariantPakistan: product.sizeVariantPakistan 
+            ? (Array.isArray(product.sizeVariantPakistan) ? product.sizeVariantPakistan : [])
+            : (Array.isArray(product.sizeVariants?.pakistan) ? product.sizeVariants.pakistan : []),
           images: product.images || [], // Keep as array for FormData submission
           neck: product.neck || "",
           topDesignStyling: product.topDesignStyling || "",
@@ -113,29 +116,84 @@ const EditProductForm = () => {
     }
   };
 
+  // Updated handleSizeChange function to work with separate arrays
   const handleSizeChange = (region, size) => {
+    const arrayName = region === "india" ? "sizeVariantIndia" : "sizeVariantPakistan";
+    
     setFormData((prev) => {
-      const currentSizes = prev.sizeVariants[region];
-      const updatedSizes = currentSizes.includes(size)
-        ? currentSizes.filter((s) => s !== size)
-        : [...currentSizes, size];
+      const currentSizes = [...prev[arrayName]];
+      let updatedSizes;
+      
+      if (currentSizes.includes(size)) {
+        // Remove the size if it's already selected
+        updatedSizes = currentSizes.filter((s) => s !== size);
+      } else {
+        // Add the size if it's not selected
+        updatedSizes = [...currentSizes, size];
+      }
 
       return {
         ...prev,
-        sizeVariants: {
-          ...prev.sizeVariants,
-          [region]: updatedSizes,
-        },
+        [arrayName]: updatedSizes,
       };
     });
   };
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    setFormData((prev) => ({ ...prev, images: files }));
-    const previews = files.map((file) => URL.createObjectURL(file));
-    setPreviewImages(previews);
+    
+    // Create new preview URLs for the new files
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    
+    setFormData((prev) => {
+      // Check if previous images exist
+      const existingImages = prev.images || [];
+      const hasExistingImages = existingImages.length > 0;
+      
+      if (hasExistingImages) {
+        // Append new images to existing ones
+        return {
+          ...prev,
+          images: [...existingImages, ...files]
+        };
+      } else {
+        // No existing images, set new images
+        // Clean up any existing preview URLs first
+        previewImages.forEach(preview => {
+          if (typeof preview === 'string' && preview.startsWith('blob:')) {
+            URL.revokeObjectURL(preview);
+          }
+        });
+        
+        return {
+          ...prev,
+          images: files
+        };
+      }
+    });
+    
+    setPreviewImages((prev) => {
+      // Check if previous preview images exist
+      const hasExistingPreviews = prev.length > 0;
+      
+      if (hasExistingPreviews) {
+        // Append new previews to existing ones
+        return [...prev, ...newPreviews];
+      } else {
+        // No existing previews, set new previews
+        return newPreviews;
+      }
+    });
   };
+  
+  const handleRemoveImage = (indexToRemove) => {
+    setPreviewImages((prev) => prev.filter((_, i) => i !== indexToRemove));
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== indexToRemove),
+    }));
+  };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -152,9 +210,12 @@ const EditProductForm = () => {
       for (const key in formData) {
         if (key === "images") {
           formData.images.forEach((file) => form.append("images", file));
-        } else if (key === "sizeVariants") {
-          form.append("sizeVariants[indian]", formData.sizeVariants.indian.join(","));
-          form.append("sizeVariants[pakistan]", formData.sizeVariants.pakistan.join(","));
+        } else if (key === "sizeVariantIndia") {
+          // Handle separate size arrays
+          form.append("sizeVariantsIndia", formData.sizeVariantIndia.join(","));
+                  } else if (key === "sizeVariantPakistan") {
+          // Handle separate size arrays
+          form.append("sizeVariantsPakistan", formData.sizeVariantPakistan.join(","));
         } else if (Array.isArray(formData[key])) {
           form.append(key, formData[key].join(","));
         } else {
@@ -189,7 +250,8 @@ const EditProductForm = () => {
           discount: 0,
           colorVariants: [""],
           material: [""],
-          sizeVariants: { indian: [], pakistan: [] },
+          sizeVariantIndia: [], // Updated reset values
+          sizeVariantPakistan: [], // Updated reset values
           images: [],
           neck: "",
           topDesignStyling: "",
@@ -201,6 +263,8 @@ const EditProductForm = () => {
           printOrPattern: "",
         });
         setPreviewImages([]);
+        // Navigate to /products
+        navigate("/products");
       } else {
         throw new Error(result.message || "API error");
       }
@@ -406,7 +470,7 @@ const EditProductForm = () => {
                 ))}
               </div>
 
-              {/* Size Variants */}
+              {/* Size Variants - Updated to work with separate arrays */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
                   <h3 className="flex items-center space-x-2 text-lg font-semibold text-white mb-4">
@@ -418,18 +482,18 @@ const EditProductForm = () => {
                       <label key={size} className="flex items-center justify-center space-x-2 bg-white/5 rounded-lg p-3 cursor-pointer hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-purple-500/50">
                         <input
                           type="checkbox"
-                          checked={formData.sizeVariants.indian.includes(size)}
-                          onChange={() => handleSizeChange("indian", size)}
+                          checked={formData.sizeVariantIndia.includes(size)}
+                          onChange={() => handleSizeChange("india", size)}
                           className="sr-only"
                         />
                         <span className={`text-sm font-medium transition-colors duration-300 ${
-                          formData.sizeVariants.indian.includes(size) 
+                          formData.sizeVariantIndia.includes(size) 
                             ? 'text-purple-400' 
                             : 'text-gray-300'
                         }`}>
                           {size}
                         </span>
-                        {formData.sizeVariants.indian.includes(size) && (
+                        {formData.sizeVariantIndia.includes(size) && (
                           <span className="text-purple-400">✓</span>
                         )}
                       </label>
@@ -447,18 +511,18 @@ const EditProductForm = () => {
                       <label key={size} className="flex items-center justify-center space-x-2 bg-white/5 rounded-lg p-3 cursor-pointer hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-purple-500/50">
                         <input
                           type="checkbox"
-                          checked={formData.sizeVariants.pakistan.includes(size)}
+                          checked={formData.sizeVariantPakistan.includes(size)}
                           onChange={() => handleSizeChange("pakistan", size)}
                           className="sr-only"
                         />
                         <span className={`text-sm font-medium transition-colors duration-300 ${
-                          formData.sizeVariants.pakistan.includes(size) 
+                          formData.sizeVariantPakistan.includes(size) 
                             ? 'text-purple-400' 
                             : 'text-gray-300'
                         }`}>
                           {size}
                         </span>
-                        {formData.sizeVariants.pakistan.includes(size) && (
+                        {formData.sizeVariantPakistan.includes(size) && (
                           <span className="text-purple-400">✓</span>
                         )}
                       </label>
@@ -539,17 +603,23 @@ const EditProductForm = () => {
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                   {previewImages.map((src, index) => (
-                        <div key={index} className="group relative">
-                          <img
-                            src={`https://backend.pinkstories.ae${src.replace('/src', '')}`}
-                            alt={`preview-${index}`}
-                            className="w-full h-32 object-cover rounded-xl border border-white/20 group-hover:scale-105 transition-transform duration-300"
-                          />
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl flex items-center justify-center">
-                            <span className="text-white text-sm font-medium">Image {index + 1}</span>
-                          </div>
-                        </div>
-                      ))}
+                    <div key={index} className="group relative">
+                      <img
+                        src={src.includes("blob:") ? src : `https://backend.pinkstories.ae${src.replace('/src', '')}`}
+                        alt={`preview-${index}`}
+                        className="w-full h-32 object-cover rounded-xl border border-white/20 group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl flex items-center justify-center">
+                        <button
+                          onClick={() => handleRemoveImage(index)}
+                          className="text-red-400 bg-white/10 px-3 py-1 rounded-lg hover:bg-red-600 hover:text-white transition duration-200 text-sm font-semibold"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+
                   </div>
                 </div>
               )}

@@ -86,7 +86,7 @@ const ProductsTable = () => {
   // Card component for mobile view
   const ProductCard = ({ product }) => (
     <motion.div
-      className="bg-white dark:bg-gray-800 mb-6 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
+      className="bg-gray-800 mb-6 rounded-xl shadow-lg p-6 border border-gray-700"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
@@ -98,7 +98,7 @@ const ProductsTable = () => {
               <img
                 src={`https://backend.pinkstories.ae${product.images[0].replace('/src', '')}`}
                 alt={product.productName}
-                className="w-16 h-16 object-cover rounded-lg cursor-pointer border-2 border-gray-200 dark:border-gray-600"
+                className="w-16 h-16 object-cover rounded-lg cursor-pointer border-2 border-gray-600"
                 onClick={() => handleImageClick(product.images)}
               />
               <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full px-2 py-1 font-semibold">
@@ -106,28 +106,28 @@ const ProductsTable = () => {
               </span>
             </div>
           ) : (
-            <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+            <div className="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center">
               <span className="text-gray-400 text-xs">No image</span>
             </div>
           )}
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white text-lg">
+            <h3 className="font-semibold text-white text-lg">
               {product.productName}
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">SKU: {product.sku}</p>
+            <p className="text-sm text-gray-400">SKU: {product.sku}</p>
           </div>
         </div>
         <div className="flex space-x-2">
           <button
             title="Edit"
-            className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+            className="p-2 text-blue-400 hover:bg-blue-900/20 rounded-lg transition-colors"
             onClick={() => navigate(`/products/${product._id}`)}
           >
             <Edit size={18} />
           </button>
           <button
             title="Delete"
-            className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+            className="p-2 text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
             onClick={() => handleDeleteProduct(product._id)}
           >
             <Trash2 size={18} />
@@ -138,50 +138,50 @@ const ProductsTable = () => {
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div className="space-y-2">
           <div>
-            <span className="font-medium text-gray-700 dark:text-gray-300">Category:</span>
-            <p className="text-gray-900 dark:text-white">{product.category}</p>
+            <span className="font-medium text-gray-300">Category:</span>
+            <p className="text-white">{product.category}</p>
           </div>
           <div>
-            <span className="font-medium text-gray-700 dark:text-gray-300">Brand:</span>
-            <p className="text-gray-900 dark:text-white">{product.brand}</p>
+            <span className="font-medium text-gray-300">Brand:</span>
+            <p className="text-white">{product.brand}</p>
           </div>
           <div>
-            <span className="font-medium text-gray-700 dark:text-gray-300">Price:</span>
-            <p className="text-lg font-bold text-green-600 dark:text-green-400">${product.price}</p>
+            <span className="font-medium text-gray-300">Price:</span>
+            <p className="text-lg font-bold text-green-400">${product.price}</p>
           </div>
           <div>
-            <span className="font-medium text-gray-700 dark:text-gray-300">Stock:</span>
-            <p className={`font-semibold ${product.stockQuantity > 10 ? 'text-green-600' : 'text-red-600'}`}>
+            <span className="font-medium text-gray-300">Stock:</span>
+            <p className={`font-semibold ${product.stockQuantity > 10 ? 'text-green-400' : 'text-red-400'}`}>
               {product.stockQuantity}
             </p>
           </div>
         </div>
         <div className="space-y-2">
           <div>
-            <span className="font-medium text-gray-700 dark:text-gray-300">Weight:</span>
-            <p className="text-gray-900 dark:text-white">{product.weight}</p>
+            <span className="font-medium text-gray-300">Weight:</span>
+            <p className="text-white">{product.weight}</p>
           </div>
           <div>
-            <span className="font-medium text-gray-700 dark:text-gray-300">Discount:</span>
-            <p className="text-gray-900 dark:text-white">{product.discount || "-"}</p>
+            <span className="font-medium text-gray-300">Discount:</span>
+            <p className="text-white">{product.discount || "-"}</p>
           </div>
           <div>
-            <span className="font-medium text-gray-700 dark:text-gray-300">Delivery:</span>
-            <p className="text-gray-900 dark:text-white">{product.deliveryTime}</p>
+            <span className="font-medium text-gray-300">Delivery:</span>
+            <p className="text-white">{product.deliveryTime}</p>
           </div>
           <div>
-            <span className="font-medium text-gray-700 dark:text-gray-300">Date Added:</span>
-            <p className="text-gray-900 dark:text-white">{product.dateAdded?.slice(0, 10)}</p>
+            <span className="font-medium text-gray-300">Date Added:</span>
+            <p className="text-white">{product.dateAdded?.slice(0, 10)}</p>
           </div>
         </div>
       </div>
 
       {product.sizeVariants && product.sizeVariants.length > 0 && (
         <div className="mt-3">
-          <span className="font-medium text-gray-700 dark:text-gray-300">Sizes:</span>
+          <span className="font-medium text-gray-300">Sizes:</span>
           <div className="flex flex-wrap gap-1 mt-1">
             {product.sizeVariants.map((size, index) => (
-              <span key={index} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded-full">
+              <span key={index} className="px-2 py-1 bg-blue-900/30 text-blue-300 text-xs rounded-full">
                 {size}
               </span>
             ))}
@@ -191,10 +191,10 @@ const ProductsTable = () => {
 
       {product.colorVariants && product.colorVariants.length > 0 && (
         <div className="mt-3">
-          <span className="font-medium text-gray-700 dark:text-gray-300">Colors:</span>
+          <span className="font-medium text-gray-300">Colors:</span>
           <div className="flex flex-wrap gap-1 mt-1">
             {product.colorVariants.map((color, index) => (
-              <span key={index} className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 text-xs rounded-full">
+              <span key={index} className="px-2 py-1 bg-purple-900/30 text-purple-300 text-xs rounded-full">
                 {color}
               </span>
             ))}
@@ -204,15 +204,15 @@ const ProductsTable = () => {
 
       {product.material && product.material.length > 0 && (
         <div className="mt-3">
-          <span className="font-medium text-gray-700 dark:text-gray-300">Material:</span>
-          <p className="text-gray-900 dark:text-white text-sm">{product.material.join(", ")}</p>
+          <span className="font-medium text-gray-300">Material:</span>
+          <p className="text-white text-sm">{product.material.join(", ")}</p>
         </div>
       )}
 
       {product.shortDescription && (
-        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <span className="font-medium text-gray-700 dark:text-gray-300">Description:</span>
-          <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">{product.shortDescription}</p>
+        <div className="mt-4 pt-4 border-t border-gray-700">
+          <span className="font-medium text-gray-300">Description:</span>
+          <p className="text-gray-400 text-sm mt-1">{product.shortDescription}</p>
         </div>
       )}
     </motion.div>
@@ -220,15 +220,15 @@ const ProductsTable = () => {
 
   return (
     <motion.div
-      className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700"
+      className="bg-gray-900 rounded-2xl shadow-xl border border-gray-700"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
       {/* Header */}
-      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+      <div className="p-6 border-b border-gray-700">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h2 className="text-3xl font-bold text-white">
             Product Management
           </h2>
           
@@ -239,20 +239,20 @@ const ProductsTable = () => {
               <input
                 type="text"
                 placeholder="Search products by name..."
-                className="w-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 rounded-xl pl-11 pr-4 py-3 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full bg-gray-800 text-white placeholder-gray-500 rounded-xl pl-11 pr-4 py-3 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 onChange={handleSearch}
                 value={searchTerm}
               />
             </div>
             
             {/* View Mode Toggle for smaller screens */}
-            <div className="flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1 lg:hidden">
+            <div className="flex bg-gray-800 rounded-xl p-1 lg:hidden">
               <button
                 onClick={() => setViewMode("cards")}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   viewMode === "cards"
-                    ? "bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm"
-                    : "text-gray-600 dark:text-gray-400"
+                    ? "bg-gray-700 text-blue-400 shadow-sm"
+                    : "text-gray-400"
                 }`}
               >
                 Cards
@@ -261,8 +261,8 @@ const ProductsTable = () => {
                 onClick={() => setViewMode("table")}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   viewMode === "table"
-                    ? "bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm"
-                    : "text-gray-600 dark:text-gray-400"
+                    ? "bg-gray-700 text-blue-400 shadow-sm"
+                    : "text-gray-400"
                 }`}
               >
                 Table
@@ -273,7 +273,7 @@ const ProductsTable = () => {
 
         {/* Add Product Button and Stats */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-6">
-          <div className="text-sm text-gray-600 dark:text-gray-400">
+          <div className="text-sm text-gray-400">
             Showing {filteredProducts.length} of {products.length} products
           </div>
           <button
@@ -287,8 +287,8 @@ const ProductsTable = () => {
 
         {/* Message Display */}
         {message && (
-          <div className="mt-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-            <p className="text-blue-800 dark:text-blue-300">{message}</p>
+          <div className="mt-4 p-4 rounded-xl bg-blue-900/20 border border-blue-800">
+            <p className="text-blue-300">{message}</p>
           </div>
         )}
       </div>
@@ -308,23 +308,23 @@ const ProductsTable = () => {
         <div className={`${viewMode === "cards" ? "hidden" : "hidden lg:block"} overflow-x-auto`}>
           <table className="min-w-full">
             <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-700">
+              <tr className="border-b border-gray-700">
                 {[
                   "Product", "Details", "Pricing", "Inventory", "Variants", 
                   "Specifications", "Descriptions", "Actions"
                 ].map((title) => (
                   <th
                     key={title}
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider"
+                    className="px-6 py-4 text-left text-sm font-semibold text-gray-300 uppercase tracking-wider"
                   >
                     {title}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-700">
               {filteredProducts.map((product) => (
-                <tr key={product._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <tr key={product._id} className="hover:bg-gray-800/50 transition-colors">
                   {/* Product Info */}
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-4">
@@ -333,7 +333,7 @@ const ProductsTable = () => {
                           <img
                             src={`https://backend.pinkstories.ae${product.images[0].replace('/src', '')}`}
                             alt={product.productName}
-                            className="w-16 h-16 object-cover rounded-xl cursor-pointer border border-gray-200 dark:border-gray-600"
+                            className="w-16 h-16 object-cover rounded-xl cursor-pointer border border-gray-600"
                             onClick={() => handleImageClick(product.images)}
                           />
                           <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full px-2 py-1 font-semibold">
@@ -341,15 +341,15 @@ const ProductsTable = () => {
                           </span>
                         </div>
                       ) : (
-                        <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-xl flex items-center justify-center">
+                        <div className="w-16 h-16 bg-gray-700 rounded-xl flex items-center justify-center">
                           <span className="text-gray-400 text-xs">No image</span>
                         </div>
                       )}
                       <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white">
+                        <h3 className="font-semibold text-white">
                           {product.productName}
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">SKU: {product.sku}</p>
+                        <p className="text-sm text-gray-400">SKU: {product.sku}</p>
                       </div>
                     </div>
                   </td>
@@ -357,17 +357,17 @@ const ProductsTable = () => {
                   {/* Details */}
                   <td className="px-6 py-4">
                     <div className="space-y-1">
-                      <p className="text-sm"><span className="font-medium">Category:</span> {product.category}</p>
-                      <p className="text-sm"><span className="font-medium">Brand:</span> {product.brand}</p>
-                      <p className="text-sm"><span className="font-medium">Added:</span> {product.dateAdded?.slice(0, 10)}</p>
+                      <p className="text-sm text-white"><span className="font-medium">Category:</span> {product.category}</p>
+                      <p className="text-sm text-white"><span className="font-medium">Brand:</span> {product.brand}</p>
+                      <p className="text-sm text-white"><span className="font-medium">Added:</span> {product.dateAdded?.slice(0, 10)}</p>
                     </div>
                   </td>
 
                   {/* Pricing */}
                   <td className="px-6 py-4">
                     <div className="space-y-1">
-                      <p className="text-lg font-bold text-green-600 dark:text-green-400">${product.price}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-lg font-bold text-green-400">${product.price}</p>
+                      <p className="text-sm text-gray-400">
                         Discount: {product.discount || "-"}
                       </p>
                     </div>
@@ -376,11 +376,11 @@ const ProductsTable = () => {
                   {/* Inventory */}
                   <td className="px-6 py-4">
                     <div className="space-y-1">
-                      <p className={`font-semibold ${product.stockQuantity > 10 ? 'text-green-600' : 'text-red-600'}`}>
+                      <p className={`font-semibold ${product.stockQuantity > 10 ? 'text-green-400' : 'text-red-400'}`}>
                         Stock: {product.stockQuantity}
                       </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Weight: {product.weight}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Delivery: {product.deliveryTime}</p>
+                      <p className="text-sm text-gray-400">Weight: {product.weight}</p>
+                      <p className="text-sm text-gray-400">Delivery: {product.deliveryTime}</p>
                     </div>
                   </td>
 
@@ -389,10 +389,10 @@ const ProductsTable = () => {
                     <div className="space-y-2">
                       {product.sizeVariants && product.sizeVariants.length > 0 && (
                         <div>
-                          <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Sizes:</p>
+                          <p className="text-xs font-medium text-gray-300 mb-1">Sizes:</p>
                           <div className="flex flex-wrap gap-1">
                             {product.sizeVariants.slice(0, 3).map((size, index) => (
-                              <span key={index} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded">
+                              <span key={index} className="px-2 py-1 bg-blue-900/30 text-blue-300 text-xs rounded">
                                 {size}
                               </span>
                             ))}
@@ -404,10 +404,10 @@ const ProductsTable = () => {
                       )}
                       {product.colorVariants && product.colorVariants.length > 0 && (
                         <div>
-                          <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Colors:</p>
+                          <p className="text-xs font-medium text-gray-300 mb-1">Colors:</p>
                           <div className="flex flex-wrap gap-1">
                             {product.colorVariants.slice(0, 3).map((color, index) => (
-                              <span key={index} className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 text-xs rounded">
+                              <span key={index} className="px-2 py-1 bg-purple-900/30 text-purple-300 text-xs rounded">
                                 {color}
                               </span>
                             ))}
@@ -425,8 +425,8 @@ const ProductsTable = () => {
                     <div className="space-y-1">
                       {product.material && product.material.length > 0 && (
                         <div>
-                          <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Material:</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <p className="text-xs font-medium text-gray-300">Material:</p>
+                          <p className="text-sm text-gray-400">
                             {product.material.slice(0, 2).join(", ")}
                             {product.material.length > 2 && "..."}
                           </p>
@@ -434,8 +434,8 @@ const ProductsTable = () => {
                       )}
                       {product.careInstructions && (
                         <div>
-                          <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Care:</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-xs">
+                          <p className="text-xs font-medium text-gray-300">Care:</p>
+                          <p className="text-sm text-gray-400 truncate max-w-xs">
                             {product.careInstructions}
                           </p>
                         </div>
@@ -448,16 +448,16 @@ const ProductsTable = () => {
                     <div className="space-y-1">
                       {product.productDescription && (
                         <div>
-                          <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Description:</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-xs">
+                          <p className="text-xs font-medium text-gray-300">Description:</p>
+                          <p className="text-sm text-gray-400 truncate max-w-xs">
                             {product.productDescription}
                           </p>
                         </div>
                       )}
                       {product.shortDescription && (
                         <div>
-                          <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Short Desc:</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-xs">
+                          <p className="text-xs font-medium text-gray-300">Short Desc:</p>
+                          <p className="text-sm text-gray-400 truncate max-w-xs">
                             {product.shortDescription}
                           </p>
                         </div>
@@ -470,14 +470,14 @@ const ProductsTable = () => {
                     <div className="flex space-x-3">
                       <button
                         title="Edit Product"
-                        className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                        className="p-2 text-blue-400 hover:bg-blue-900/20 rounded-lg transition-colors"
                         onClick={() => navigate(`/products/${product._id}`)}
                       >
                         <Edit size={18} />
                       </button>
                       <button
                         title="Delete Product"
-                        className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        className="p-2 text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
                         onClick={() => handleDeleteProduct(product._id)}
                       >
                         <Trash2 size={18} />
@@ -493,13 +493,13 @@ const ProductsTable = () => {
         {/* Empty State */}
         {filteredProducts.length === 0 && (
           <div className="text-center py-12">
-            <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+            <div className="w-24 h-24 mx-auto mb-4 bg-gray-800 rounded-full flex items-center justify-center">
               <Search className="w-12 h-12 text-gray-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            <h3 className="text-lg font-semibold text-white mb-2">
               No products found
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-gray-400 mb-6">
               {searchTerm ? `No products match "${searchTerm}"` : "No products available"}
             </p>
             {!searchTerm && (
@@ -516,42 +516,68 @@ const ProductsTable = () => {
 
       {/* Enhanced Image Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-75 z-50 p-4">
-          <motion.div
-            className="bg-white dark:bg-gray-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.2 }}
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className="relative w-full max-w-5xl p-4"
+    >
+      <div className="bg-gray-900 rounded-2xl shadow-xl overflow-hidden">
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700">
+          <h2 className="text-xl font-semibold text-white">
+            Product Images ({selectedImages.length})
+          </h2>
+          <button
+            onClick={handleCloseModal}
+            className="text-gray-400 hover:text-white transition"
           >
-            <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
-              <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">
-                Product Images ({selectedImages.length})
-              </h3>
-              <button
-                onClick={handleCloseModal}
-                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-              >
-                <X size={24} />
-              </button>
-            </div>
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-100px)]">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {selectedImages.map((img, index) => (
-                  <motion.img
-                    key={index}
-                    src={`https://backend.pinkstories.ae${img.replace('/src', '')}`}
-                    alt={`Product Image ${index + 1}`}
-                    className="w-full h-64 object-cover rounded-xl border border-gray-200 dark:border-gray-700 cursor-zoom-in"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                  />
-                ))}
-              </div>
-            </div>
-          </motion.div>
+            <X size={24} />
+          </button>
         </div>
-      )}
+
+        {/* Main Image Display */}
+        <div className="p-4 sm:p-6">
+          <motion.img
+            key={selectedImages[0]}
+            src={`https://backend.pinkstories.ae${selectedImages[0].replace('/src', '')}`}
+            alt="Selected Product"
+            className="w-full max-h-[70vh] object-contain rounded-xl border border-gray-700"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          />
+        </div>
+
+        {/* Thumbnails */}
+        <div className="px-4 pb-4 sm:px-6 sm:pb-6 border-t border-gray-700">
+          <div className="flex overflow-x-auto gap-3">
+            {selectedImages.map((img, index) => (
+              <img
+                key={index}
+                src={`https://backend.pinkstories.ae${img.replace('/src', '')}`}
+                alt={`Thumb ${index + 1}`}
+                onClick={() => {
+                  const reordered = [...selectedImages];
+                  const [selected] = reordered.splice(index, 1);
+                  setSelectedImages([selected, ...reordered]);
+                }}
+                className={`w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg border transition-transform cursor-pointer
+                  ${
+                    index === 0
+                      ? "border-blue-500 scale-105"
+                      : "border-gray-600 hover:border-blue-500"
+                  }`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  </div>
+)}
+
     </motion.div>
   );
 };
