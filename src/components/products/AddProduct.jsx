@@ -10,8 +10,7 @@ const AddProductForm = () => {
     { value: "semi party wear", label: "SEMI-PARTY WEARS" },
     { value: "co-ord sets", label: "CO-ORD SETS" },
     { value: "indo-western outfits", label: "INDO-WESTERN OUTFITS" },
-    { value: "kurta", label: "KURTA" },
-    { value: "saree", label: "SAREE" },
+    { value: "casuals", label: "CASUALS" },
   ];
 
   const [formData, setFormData] = useState({
