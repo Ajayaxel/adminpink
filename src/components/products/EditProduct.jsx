@@ -12,8 +12,7 @@ const EditProductForm = () => {
     { value: "semi party wear", label: "SEMI-PARTY WEARS" },
     { value: "co-ord sets", label: "CO-ORD SETS" },
     { value: "indo-western outfits", label: "INDO-WESTERN OUTFITS" },
-    { value: "kurta", label: "KURTA" },
-    { value: "saree", label: "SAREE" },
+    { value: "casuals", label: "CASUALS" },
    
   ];
       
@@ -212,10 +211,10 @@ const EditProductForm = () => {
           formData.images.forEach((file) => form.append("images", file));
         } else if (key === "sizeVariantIndia") {
           // Handle separate size arrays
-          form.append("sizeVariantsIndia", formData.sizeVariantIndia.join(","));
+          form.append("sizeVariantIndia", formData.sizeVariantIndia.join(","));
                   } else if (key === "sizeVariantPakistan") {
           // Handle separate size arrays
-          form.append("sizeVariantsPakistan", formData.sizeVariantPakistan.join(","));
+          form.append("sizeVariantPakistan", formData.sizeVariantPakistan.join(","));
         } else if (Array.isArray(formData[key])) {
           form.append(key, formData[key].join(","));
         } else {
